@@ -21,18 +21,23 @@ class Program:
     def to_dict(self):
         def declaration_to_dict(declaration):
             if isinstance(declaration, FunctionDeclaration):
-                return {
+                result = {
                     'type': declaration.type,
                     'name': declaration.name,
-                    'parameters': [param.__dict__ for param in declaration.parameters],
+                    'parameters': [
+                        {'name': param.name, 'type': param.type, **({'value': param.value} if param.value else {})}
+                        for param in declaration.parameters],
                     'returnType': declaration.returnType,
                     'body': declaration.body,
-                    'declarations': [declaration_to_dict(decl) for decl in declaration.declarations]
                 }
-            else:
-                return declaration.__dict__
-
-        return [declaration_to_dict(decl) for decl in self.declarations]
+                if declaration.declarations:
+                    result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                return result
+        return {"declarations":[declaration_to_dict(decl) for decl in self.declarations]}
 
     def to_json(self):
-        return json.dumps(self.to_dict(), indent=4)
+        return json.dumps(self.to_dict())
+
+    def export_declarations_to_json(self, file_path):
+        with open(file_path, "w") as outfile:
+            outfile.write(self.to_json())
