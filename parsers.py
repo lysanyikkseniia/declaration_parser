@@ -1,102 +1,73 @@
-import re
-
-from declaration import FunctionDeclaration
-from declaration import Parameter
+from declaration import FunctionDeclaration, PropertyDeclaration, ObjectDeclaration, ClassDeclaration, TypeDeclaration
+from util_enums import DeclarationKeyword, ModifiersKeyword
 
 
-def find_all_class_declarations(tokens):
-    found_class = False
-    within_class_definition = False
-    curly_brace_count = 0
-    class_definition_tokens = []
-    for token in tokens:
-        if token == 'class' and not found_class:
-            found_class = True
-            within_class_definition = True
-            class_definition_tokens.append(token)
-        elif within_class_definition:
-            class_definition_tokens.append(token)
-            if token == '{':
-                curly_brace_count += 1
-            elif token == '}':
-                curly_brace_count -= 1
-                if curly_brace_count == 0:
-                    within_class_definition = False
+def parse_from_tokens(tokens):  # returns rough list of dictionaries of first-level declarations
+    declarations = []
+    i = 0
+    n = len(tokens)
+    declaration_keywords = [kw.value for kw in DeclarationKeyword]
+
+    while i < n:
+        if tokens[i] in declaration_keywords:
+            declaration_keyword = tokens[i]
+            j = i - 1
+
+            # Collect modifiers that are just before the declaration keyword
+            modifiers = []
+            while j >= 0 and tokens[j] in [mk.value for mk in ModifiersKeyword]:
+                modifiers.insert(0, tokens[j])
+                j -= 1
+
+            # Start collecting the body tokens from the declaration keyword itself
+            body_tokens = []
+            brace_count = 0
+            has_brace_started = False
+            body_end = i
+            is_parent = False
+            while body_end < n:
+                token = tokens[body_end]
+                if '{' in token:
+                    brace_count += token.count('{')
+                    has_brace_started = True
+                if '}' in token:
+                    brace_count -= token.count('}')
+
+                if token in declaration_keywords and body_end != i:
+                    is_parent = True
+
+                body_tokens.append(token)
+
+                if has_brace_started and brace_count == 0:
                     break
-    class_definition_str = ' '.join(class_definition_tokens)
-    return class_definition_str
+                body_end += 1
 
+            s = body_tokens[1]
+            name = s[:min([s.find(b) for b in '([{<' if b in s] + [len(s)])]
 
-def find_all_function_declarations(tokens):
-    declarations_list = []
-    for fun in parse_functions_from_tokens(tokens):
-        parsed_function = parse_function_from_string(fun)
-        name = parsed_function[0][1].split('(')[0]
-        signature = parsed_function[0][1]
-        parameters = extract_parameters_from_signature(signature)
-        match_type = re.compile(r'\):\s*(\w+)\s*$').search(signature)
-        if match_type:
-            returntype = match_type.group(1)
+            # Store the collected information
+            declarations.append({"DeclarationKeyword": declaration_keyword, "modifiers": modifiers, "name": name,
+                                 "body_tokens": body_tokens, "is_parent": is_parent})
+
+            # Move index past the body end
+            i = body_end + 1
         else:
-            returntype = 'Unit'
-        declaration = FunctionDeclaration(name=name, parameters=parameters, returnType=returntype, body=fun)
-        insides = parsed_function[0][2].strip()[1:].strip() + '}'
-        if insides:
-            insides_declarations = find_all_function_declarations(insides.split())
-            if insides_declarations:
-                for dec in insides_declarations:
-                    declaration.add(dec)
-        declarations_list.append(declaration)
-    return declarations_list
+            i += 1
+
+    return declarations
 
 
-def extract_parameters_from_signature(signature):
-    signature = signature.replace('\n', ' ')
-    param_string = re.search(r'\((.*)\)', signature, re.DOTALL)
-    if param_string:
-        param_string = param_string.group(1)
-    else:
-        return []
-    params = re.findall(r'([\w]+)\s*:\s*([\w]+)(?:\s*=\s*([^,]+))?', param_string)
-    parameters = [Parameter(name, type_, default.strip() if default is not None else None) for name, type_, default in
-                  params]
-    return parameters
+def declaration_from_dict(declaration_raw):  # takes a dictionary and creates a declaration object
+    key_to_class_map = {"class": ClassDeclaration, "object": ObjectDeclaration, "fun": FunctionDeclaration,
+                        "val": PropertyDeclaration, "var": PropertyDeclaration, "typealias": TypeDeclaration}
+    declaration = key_to_class_map[declaration_raw["DeclarationKeyword"]](name=declaration_raw["name"],
+                                                                          body_tokens=declaration_raw["body_tokens"],
+                                                                          modifiers=declaration_raw["modifiers"])
+    if declaration_raw["is_parent"]:
+        children_dict_list = parse_from_tokens(
+            declaration_raw["body_tokens"][1:])  # returns rough list of dictionaries of inside declarations
+        for child_dictionary in children_dict_list:
+            child_declaration = declaration_from_dict(child_dictionary)
+            declaration.add_declaration(child_declaration)
 
-
-def parse_function_from_string(file_contents):
-    pattern = r'fun\s+([^\{]+)(\{.*?\})'
-    matches = re.findall(pattern, file_contents, re.DOTALL)
-    tokens = []
-    for match in matches:
-        function_signature, function_body = match
-        tokens.append(('fun', function_signature.strip(), function_body.strip()))
-    return tokens
-
-
-def parse_functions_from_tokens(tokens):
-    sections = []
-    inside_fun = False
-    brace_balance = 0
-    current_section = []
-    for token in tokens:
-        if token == "fun" and (not inside_fun or brace_balance == 0):
-            if inside_fun:
-                sections.append(" ".join(current_section))
-                current_section = []
-            inside_fun = True
-            brace_balance = 0
-            current_section.append(token)
-        elif inside_fun:
-            current_section.append(token)
-            if token == "{":
-                brace_balance += 1
-            elif token == "}":
-                brace_balance -= 1
-                if brace_balance == 0:
-                    if not (len(tokens) > tokens.index(token) + 1 and tokens[tokens.index(token) + 1] == "fun"):
-                        sections.append(" ".join(current_section))
-                        inside_fun = False
-                        current_section = []
-    if current_section:
-        sections.append(" ".join(current_section))
-    return sections
+    return declaration

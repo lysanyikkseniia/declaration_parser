@@ -1,17 +1,16 @@
-# declaration_parser
+# Declaration Parser for Kotlin language
 
+Parser is consistent to grammar for declarations within Kotlin according to [specification](https://kotlinlang.org/spec/syntax-and-grammar.html#grammar-rule-declaration) and supports: `classDeclaration`, `objectDeclaration`, `functionDeclaration`, `propertyDeclaration`, `typeAlias`.
 
-# Grammar Definition
+Parser assumes file to be correctly formatted according to the grammar.
 
-The grammar for declarations within Kotlin, specifying the syntax allowed for different types of declarations.
+There is support for syntactically nested declarations.
 
-```ebnf
-declaration ::= classDeclaration
-              | objectDeclaration
-              | functionDeclaration
-              | propertyDeclaration
-              | typeAlias
-```
+Body as in example (not conventional). 
+
+# Class Declaration
+
+Source: https://kotlinlang.org/spec/declarations.html#class-declaration
 
 ## Simple Class Declaration
 
@@ -28,9 +27,38 @@ A simple class declaration consists of the following parts:
   - Companion object declaration: `companionObj`
   - Nested classifier declarations: `nested`
 
-This creates a simple classifier type `c : S1, ..., Ss`.
+### CFG for Class declaration in Kotlin
 
-## Simple Function Declaration
+look for 'class'
+
+- `classDeclaration:`
+  - `[modifiers]`
+  - `('class' | (['fun' {NL}] 'interface'))`
+  - `{NL}`
+  - `simpleIdentifier`
+  - `[{NL} typeParameters]`
+  - `[{NL} primaryConstructor]`
+  - `[{NL} ':' {NL} delegationSpecifiers]`
+  - `[{NL} typeConstraints]`
+  - `[( {NL} classBody ) | ( {NL} enumClassBody )]`
+
+# Object Declaration
+
+look for 'object'
+
+- `objectDeclaration:`
+  - `[modifiers]`
+  - `'object'`
+  - `{NL}`
+  - `simpleIdentifier`
+  - `[{NL} ':' {NL} delegationSpecifiers]`
+  - `[{NL} classBody]`
+
+# Function Declaration
+
+Source: https://kotlinlang.org/spec/declarations.html#function-declaration
+
+### Simple example
 
 A simple function declaration consists of four main parts:
 
@@ -39,4 +67,57 @@ A simple function declaration consists of four main parts:
 - **Return type**: `R`
 - **Body**: `b`
 
-This has a function type `f : (p1 : P1,...,pn : Pn) → R`.
+### CFG for function declaration in Kotlin
+
+**Function Declaration**
+
+look for 'fun'
+
+- `functionDeclaration:`
+  - `[modifiers] 'fun'`
+  - `[[NL] typeParameters]`
+  - `[[NL] receiverType [NL] '.']`
+  - `simpleIdentifier`
+  - `functionValueParameters`
+  - `[[NL] ':' [NL] type]`
+  - `[[NL] typeConstraints]`
+  - `[[NL] functionBody]`
+
+**Function Body**
+
+- `functionBody:`
+  - `block`
+  - `| ('=' [NL] expression)`
+
+
+# Property Declaration
+
+look for 'val' or 'var'
+
+- `propertyDeclaration:`
+  - `[modifiers]`
+  - `('val' | 'var')`
+  - `[{NL} typeParameters]`
+  - `[{NL} receiverType {NL} '.']`
+  - `({NL} (multiVariableDeclaration | variableDeclaration))`
+  - `[{NL} typeConstraints]`
+  - `[{NL} (('=' {NL} expression) | propertyDelegate)]`
+  - `[{NL} ';']`
+  - `{NL}`
+  - `(([getter] [{NL} [semi] setter]) | ([setter] [{NL} [semi] getter]))`
+
+
+# Type Alias
+
+look for 'typealias'
+
+- `typeAlias:`
+  - `[modifiers]`
+  - `'typealias'`
+  - `{NL}`
+  - `simpleIdentifier`
+  - `[{NL} typeParameters]`
+  - `{NL}`
+  - `'='`
+  - `{NL}`
+  - `type`

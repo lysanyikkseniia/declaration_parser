@@ -11,58 +11,62 @@ class DeclarationType(Enum):
 
 
 class Parameter:
-    def __init__(self, name: str, type: str, value: str):
+    def __init__(self, name: str, dtype: str, value: str = None):
         self.name = name
-        self.type = type
+        self.dtype = dtype
         self.value = value
 
     def __repr__(self):
-        return f"Parameter(name='{self.name}', type='{self.type}', value='{self.value}')"
+        return f"Parameter(name='{self.name}', type='{self.dtype}', value='{self.value}')"
 
 
 class Declaration:
-    def __init__(self, name: str, type: DeclarationType, declarations):
+    def __init__(self, name: str, type: DeclarationType, modifiers=None, body_tokens=None):
         self.name = name
         self.type = type
-        self.declarations = declarations
 
-    def add(self, declaration):
+        self.modifiers = modifiers
+        self.declarations = []
+
+        self.body = ' '.join(modifiers) + ' '.join(body_tokens)
+
+    def add_declaration(self, declaration):
         self.declarations.append(declaration)
-
-    def remove(self, declaration):
-        self.declarations.remove(declaration)
 
 
 class ObjectDeclaration(Declaration):
-    def __init__(self, name: str):
-        super().__init__(name, declarations=[], type=DeclarationType.OBJECT)
+    def __init__(self, name: str, body_tokens: str = '', modifiers: List[str] = None):
+        super().__init__(name, type=DeclarationType.OBJECT.value, modifiers=modifiers, body_tokens=body_tokens)
 
 
-class ClassDeclaration(Declaration):
-    def __init__(self, name: str):
-        super().__init__(name, declarations=[], type=DeclarationType.CLASS)
+class ClassDeclaration(Declaration):  # TODO interface classes
+    def __init__(self, name: str, body_tokens: str = '', modifiers: List[str] = None):
+        super().__init__(name, type=DeclarationType.CLASS.value, modifiers=modifiers, body_tokens=body_tokens)
+        self.primary_constructor = ''  # TODO
+        self.supertype_specifiers = ''  # TODO
 
 
 class PropertyDeclaration(Declaration):
-    def __init__(self, name: str):
-        super().__init__(name, declarations=[], type=DeclarationType.PROPERTY)
+    def __init__(self, name: str, body_tokens: str = '', modifiers: List[str] = None):
+        super().__init__(name, type=DeclarationType.PROPERTY.value, modifiers=modifiers, body_tokens=body_tokens)
 
 
 class TypeDeclaration(Declaration):
-    def __init__(self, name: str):
-        super().__init__(name, declarations=[], type=DeclarationType.TYPE)
+    def __init__(self, name: str, body_tokens: str = '', modifiers: List[str] = None):
+        super().__init__(name, type=DeclarationType.TYPE.value, modifiers=modifiers, body_tokens=body_tokens)
 
 
 class FunctionDeclaration(Declaration):
-    def __init__(self, name: str, parameters: List[Parameter], returnType: str, body: str):
-        super().__init__(name, declarations=[], type="function") #TODO fix
-        self.parameters = parameters
-        self.returnType = returnType
-        self.body = body
+    def __init__(self, name: str, body_tokens: str = '', modifiers: List[str] = None):
+        super().__init__(name, type=DeclarationType.FUNCTION.value, modifiers=modifiers, body_tokens=body_tokens)
+
+        self.parameters = ''  # TODO
+        self.returnType = ''  # TODO
 
     def __repr__(self):
         parameters_repr = ', '.join(repr(param) for param in self.parameters)
-        declarations_repr = ', '.join(repr(declaration) for declaration in self.declarations)
+        modifiers_repr = ', '.join(repr(mod) for mod in self.modifiers)
+        declarations_repr = ', '.join(repr(decl) for decl in self.declarations)
         return (f"FunctionDeclaration(type='{self.type}', name='{self.name}', "
                 f"parameters=[{parameters_repr}], "
-                f"returnType='{self.returnType}', body='{self.body}', declarations=[{declarations_repr}])")
+                f"returnType='{self.returnType}', body='{self.body}', modifiers=['{modifiers_repr}'], declarations=[{declarations_repr}])")

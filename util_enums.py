@@ -1,0 +1,42 @@
+from enum import Enum
+
+
+class DeclarationKeyword(Enum):
+    CLASS = "class"
+    OBJECT = "object"
+    FUN = "fun"
+    VAL = "val"
+    VAR = "var"
+    TYPEALIAS = "typealias"
+
+
+class ModifiersKeyword(Enum):
+    ABSTRACT = "abstract"
+    ACTUAL = "actual"
+    ANNOTATION = "annotation"
+    COMPANION = "companion"
+    CONST = "const"
+    CROSSINLINE = "crossinline"
+    DATA = "data"
+    ENUM = "enum"
+    EXPECT = "expect"
+    EXTERNAL = "external"
+    FINAL = "final"
+    INFIX = "infix"
+    INLINE = "inline"
+    INNER = "inner"
+    INTERNAL = "internal"
+    LATEINIT = "lateinit"
+    NOINLINE = "noinline"
+    OPEN = "open"
+    OPERATOR = "operator"
+    OUT = "out"
+    OVERRIDE = "override"
+    PRIVATE = "private"
+    PROTECTED = "protected"
+    PUBLIC = "public"
+    REIFIED = "reified"
+    SEALED = "sealed"
+    SUSPEND = "suspend"
+    TAILREC = "tailrec"
+    VARARG = "vararg"
