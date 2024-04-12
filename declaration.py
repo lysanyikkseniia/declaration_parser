@@ -28,10 +28,16 @@ class Declaration:
         self.modifiers = modifiers
         self.declarations = []
 
-        self.body = ' '.join(modifiers) + ' '.join(body_tokens)
+        self.body = ' '.join(modifiers + body_tokens)
 
     def add_declaration(self, declaration):
         self.declarations.append(declaration)
+
+    def to_dict(self):
+        result = {'type': self.type, 'name': self.name, 'body': self.body}
+        if self.declarations:
+            result['declarations'] = [decl.to_dict() for decl in self.declarations]
+        return result
 
 
 class ObjectDeclaration(Declaration):
@@ -44,6 +50,12 @@ class ClassDeclaration(Declaration):  # TODO interface classes
         super().__init__(name, type=DeclarationType.CLASS.value, modifiers=modifiers, body_tokens=body_tokens)
         self.primary_constructor = ''  # TODO
         self.supertype_specifiers = ''  # TODO
+
+    def to_dict(self):
+        result = super().to_dict()
+        result['primary_constructor'] = self.primary_constructor
+        result['supertype_specifiers'] = self.supertype_specifiers
+        return result
 
 
 class PropertyDeclaration(Declaration):
@@ -63,10 +75,8 @@ class FunctionDeclaration(Declaration):
         self.parameters = ''  # TODO
         self.returnType = ''  # TODO
 
-    def __repr__(self):
-        parameters_repr = ', '.join(repr(param) for param in self.parameters)
-        modifiers_repr = ', '.join(repr(mod) for mod in self.modifiers)
-        declarations_repr = ', '.join(repr(decl) for decl in self.declarations)
-        return (f"FunctionDeclaration(type='{self.type}', name='{self.name}', "
-                f"parameters=[{parameters_repr}], "
-                f"returnType='{self.returnType}', body='{self.body}', modifiers=['{modifiers_repr}'], declarations=[{declarations_repr}])")
+    def to_dict(self):
+        base = super().to_dict()
+        base['parameters'] = self.parameters
+        base['returnType'] = self.returnType
+        return base

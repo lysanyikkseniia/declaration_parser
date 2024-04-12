@@ -24,14 +24,8 @@ class Program:
 
     def to_dict(self):
         def declaration_to_dict(declaration):
-            if isinstance(declaration, FunctionDeclaration):
-                result = {'type': declaration.type, 'name': declaration.name, 'parameters': [
-                    {'name': param.name, 'type': param.type, **({'value': param.value} if param.value else {})} for
-                    param in declaration.parameters], 'returnType': declaration.returnType, 'body': declaration.body, }
-                if declaration.declarations:
-                    result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
-                return result
-            # TODO ELSE (maybe move to declaration class methods??)
+            if isinstance(declaration, Declaration):
+                return declaration.to_dict()
 
         return {"declarations": [declaration_to_dict(decl) for decl in self.declarations]}
 
