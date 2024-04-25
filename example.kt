@@ -1,28 +1,49 @@
-fun fizzBuzz(n: Int) {
-    fun getFizzBuzzString(number: Int): String {
-        return when {
-            number % 3 == 0 && number % 5 == 0 -> "FizzBuzz"
-            number % 3 == 0 -> "Fizz"
-            number % 5 == 0 -> "Buzz"
-            else -> number.toString()
-        }
-    }
 
-    for (i in 1..n) {
-        println(getFizzBuzzString(i))
+open class Base {}
+
+class B (val i: Int) : Base() {}
+
+open class C(arg: Int) {
+    val i: Int
+
+    init {
+        i = arg * arg
     }
 }
 
-class InitOrderDemo(name: String) {
-    val firstProperty = "First property: $name".also(::println)
+class D : C {
+    constructor(s: String) : super(s.toInt())
+}
 
-    init {
-        println("First initializer block that prints $name")
+class E : Base() {
+    companion object /* Companion */ {
+        var name = "I am a companion object of E!"
     }
+}
 
-    val secondProperty = "Second property: ${name.length}".also(::println)
 
-    init {
-        println("Second initializer block that prints ${name.length}")
+open class Outer {
+    private val a = 1
+    protected open val b = 2
+    internal open val c = 3
+    val d = 4  // public by default
+
+    protected class Nested {
+        public val e: Int = 5
     }
+}
+
+class Subclass : Outer() {
+    // a is not visible
+    // b, c and d are visible
+    // Nested and e are visible
+
+    override val b = 5   // 'b' is protected
+    override val c = 7   // 'c' is internal
+}
+
+class Unrelated(o: Outer) {
+    // o.a, o.b are not visible
+    // o.c and o.d are visible (same module)
+    // Outer.Nested is not visible, and Nested::e is not visible either
 }

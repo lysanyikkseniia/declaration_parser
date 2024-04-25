@@ -6,7 +6,9 @@ Parser assumes file to be correctly formatted according to the grammar.
 
 There is support for syntactically nested declarations.
 
-Body as in example (not conventional). 
+Body as in example (not conventional) - includes header, modifiers etc. 
+
+ASSUMES THAT THERE IS A BODY ENCLOSED IN {}
 
 # Class Declaration
 
@@ -121,3 +123,6 @@ look for 'typealias'
   - `'='`
   - `{NL}`
   - `type`
+
+typeParameters - everything after name before =
+type everything after = 
