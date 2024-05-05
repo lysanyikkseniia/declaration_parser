@@ -42,7 +42,7 @@ class Declaration:
 
 class ObjectDeclaration(Declaration):
     def __init__(self, name: str, modifiers=None):
-        super().__init__(name, declarations=None, type=DeclarationType.TYPE, modifiers=modifiers)
+        super().__init__(name, declarations=None, type=DeclarationType.OBJECT, modifiers=modifiers)
 
     def __repr__(self):
         declarations_repr = ', '.join(repr(declaration) for declaration in self.declarations)
@@ -51,7 +51,7 @@ class ObjectDeclaration(Declaration):
 
 class ClassDeclaration(Declaration):
     def __init__(self, name: str, modifiers=None):
-        super().__init__(name, declarations=None, type=DeclarationType.TYPE, modifiers=modifiers)
+        super().__init__(name, declarations=None, type=DeclarationType.CLASS, modifiers=modifiers)
 
     def __repr__(self):
         declarations_repr = ', '.join(repr(declaration) for declaration in self.declarations)
@@ -60,7 +60,7 @@ class ClassDeclaration(Declaration):
 
 class PropertyDeclaration(Declaration):
     def __init__(self, name: str, modifiers=None):
-        super().__init__(name, declarations=None, type=DeclarationType.TYPE, modifiers=modifiers)
+        super().__init__(name, declarations=None, type=DeclarationType.PROPERTY, modifiers=modifiers)
 
     def __repr__(self):
         declarations_repr = ', '.join(repr(declaration) for declaration in self.declarations)
