@@ -82,5 +82,7 @@ class Program:
         return json.dumps(self.to_dict())
 
     def export_declarations_to_json(self, file_path):
+        json_obj = self.to_json()
         with open(file_path, "w") as outfile:
-            outfile.write(self.to_json())
+            outfile.write(json_obj)
+        return json_obj

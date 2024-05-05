@@ -1,18 +1,18 @@
 # Declaration Parser for Kotlin Language
 
 ## Overview
-This is a CLI tool implemented in Python for parsing declarations in Kotlin files. Parser assumes file to be correctly formatted and do not include errors.
+This is a CLI tool implemented in Python for parsing declarations in Kotlin files. Parser assumes Kotlin file to be correctly formatted and do not include errors.
 
 The parser recognizes and categorizes declarations of classes, functions, type aliases and objects. Functions within classes and objects, as well as top-level functions are correctly identified with their names, parameters, and return types. There is support for syntactically nested declarations within functions.
 
 Parser is consistent to grammar for declarations within Kotlin according to [specification](https://kotlinlang.org/spec/syntax-and-grammar.html#grammar-rule-declaration) supporting `classDeclaration`, `objectDeclaration`, `functionDeclaration`, `propertyDeclaration`, `typeAlias`.
 
 ## Usage
-To use the Declaration Parser, include it as a part of your project and direct it to parse individual Kotlin files. The parser will output a structured representation of all declarations found within the file, categorized by type. This output can then be utilized for further processing or analysis.
+To use the Declaration Parser, include it as a part of your project and direct it to parse individual Kotlin files. The parser will output a structured representation of all declarations found within the file, categorized by type.
 
 ### Example
 
-When running the following command the script will process the Kotlin file data/example1.kt and save the output to a JSON file named output1.json.
+When running the following command the script will process the Kotlin file data/example1.kt and save the output to a JSON file named output.json.
 
 ```bash
 python main.py data/example1.kt output.json
@@ -47,4 +47,3 @@ The parsed output is as follows:
 
 1. Support for nesting in objects and classes.
 2. Support for modifiers of functions.
-
