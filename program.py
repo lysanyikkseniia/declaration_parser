@@ -2,7 +2,7 @@ import json
 
 from declaration import Declaration, FunctionDeclaration, ClassDeclaration, ObjectDeclaration, PropertyDeclaration, \
     TypeDeclaration
-from parsers import find_all_declarations
+from parsers import find_declarations
 
 
 class Program:
@@ -13,9 +13,7 @@ class Program:
         self.tokens = file_content.split()
         self.file_paths = file_path
 
-        self.declarations = []
-
-        self.declarations.extend(find_all_declarations(self.tokens))
+        self.declarations = find_declarations(self.tokens)
 
     def add_declaration(self, declaration: Declaration):
         self.declarations.append(declaration)
@@ -32,6 +30,8 @@ class Program:
                     'returnType': declaration.returnType,
                     'body': declaration.body,
                 }
+                if declaration.modifiers:
+                    result['modifiers'] = [mod for mod in declaration.modifiers]
                 if declaration.declarations:
                     result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
                 return result
@@ -42,6 +42,8 @@ class Program:
                 }
                 if declaration.declarations:
                     result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                if declaration.modifiers:
+                    result['modifiers'] = [mod for mod in declaration.modifiers]
                 return result
             elif isinstance(declaration, ObjectDeclaration):
                 result = {
@@ -50,12 +52,16 @@ class Program:
                 }
                 if declaration.declarations:
                     result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                if declaration.modifiers:
+                    result['modifiers'] = [mod for mod in declaration.modifiers]
                 return result
             elif isinstance(declaration, PropertyDeclaration):
                 result = {
                     'type': declaration.type.value,
                     'name': declaration.name
                 }
+                if declaration.modifiers:
+                    result['modifiers'] = [mod for mod in declaration.modifiers]
                 if declaration.declarations:
                     result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
                 return result
@@ -64,6 +70,8 @@ class Program:
                     'type': declaration.type.value,
                     'name': declaration.name
                 }
+                if declaration.modifiers:
+                    result['modifiers'] = [mod for mod in declaration.modifiers]
                 if declaration.declarations:
                     result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
                 return result

@@ -1,30 +1,76 @@
 import re
 
-from declaration import FunctionDeclaration
+from declaration import FunctionDeclaration, TypeDeclaration, ObjectDeclaration, ClassDeclaration
 from declaration import Parameter
+
+modifiers = [
+    "abstract",
+    "actual",
+    "annotation",
+    "companion",
+    "const",
+    "crossinline",
+    "data",
+    "enum",
+    "expect",
+    "external",
+    "final",
+    "infix",
+    "inline",
+    "inner",
+    "internal",
+    "lateinit",
+    "noinline",
+    "open",
+    "operator",
+    "out",
+    "override",
+    "private",
+    "protected",
+    "public",
+    "reified",
+    "sealed",
+    "suspend",
+    "tailrec",
+    "vararg"
+]
+
+def find_declarations(tokens):
+    declarations = (
+            find_all_function_declarations(tokens) +
+            find_all_type_alises(tokens) +
+            find_all_objects(tokens) +
+            find_all_class_declarations(tokens)
+    )
+    return declarations
+
+
+def find_declarations_by_type(tokens, keyword, declaration_type):
+    declarations = []
+    for i in range(len(tokens)):
+        if tokens[i] == keyword:
+            name = tokens[i + 1]
+            j = i - 1
+            current_modifiers = []
+            while j >= 0 and tokens[j] in modifiers:
+                current_modifiers.insert(0, tokens[j])
+                j -= 1
+            declaration = declaration_type(name=name, modifiers=current_modifiers)
+            declarations.append(declaration)
+    return declarations
+
+
+
+def find_all_objects(tokens):
+    return find_declarations_by_type(tokens, 'object', ObjectDeclaration)
+
+
+def find_all_type_alises(tokens):
+    return find_declarations_by_type(tokens, 'typealias', TypeDeclaration)
 
 
 def find_all_class_declarations(tokens):
-    found_class = False
-    within_class_definition = False
-    curly_brace_count = 0
-    class_definition_tokens = []
-    for token in tokens:
-        if token == 'class' and not found_class:
-            found_class = True
-            within_class_definition = True
-            class_definition_tokens.append(token)
-        elif within_class_definition:
-            class_definition_tokens.append(token)
-            if token == '{':
-                curly_brace_count += 1
-            elif token == '}':
-                curly_brace_count -= 1
-                if curly_brace_count == 0:
-                    within_class_definition = False
-                    break
-    class_definition_str = ' '.join(class_definition_tokens)
-    return class_definition_str
+    return find_declarations_by_type(tokens, 'class', ClassDeclaration)
 
 
 def find_all_function_declarations(tokens):
@@ -42,7 +88,7 @@ def find_all_function_declarations(tokens):
         declaration = FunctionDeclaration(name=name, parameters=parameters, returnType=returntype, body=fun)
         insides = parsed_function[0][2].strip()[1:].strip() + '}'
         if insides:
-            insides_declarations = find_all_function_declarations(insides.split())
+            insides_declarations = find_declarations(insides.split())
             if insides_declarations:
                 for dec in insides_declarations:
                     declaration.add(dec)

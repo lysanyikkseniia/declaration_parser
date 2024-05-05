@@ -1,5 +1,7 @@
 from program import Program
 
-program = Program(file_path='example.kt')
+program1 = Program(file_path='example1.kt')
+data_json1 = program1.export_declarations_to_json('output1.json')
 
-data_json = program.export_declarations_to_json('hiii.json')
+program2 = Program(file_path='example2.kt')
+data_json2 = program2.export_declarations_to_json('output2.json')
