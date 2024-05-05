@@ -1,7 +1,8 @@
 import json
 
-from declaration import Declaration, FunctionDeclaration
-from parsers import find_all_function_declarations
+from declaration import Declaration, FunctionDeclaration, ClassDeclaration, ObjectDeclaration, PropertyDeclaration, \
+    TypeDeclaration
+from parsers import find_all_declarations
 
 
 class Program:
@@ -13,7 +14,8 @@ class Program:
         self.file_paths = file_path
 
         self.declarations = []
-        self.declarations.extend(find_all_function_declarations(self.tokens))
+
+        self.declarations.extend(find_all_declarations(self.tokens))
 
     def add_declaration(self, declaration: Declaration):
         self.declarations.append(declaration)
@@ -22,7 +24,7 @@ class Program:
         def declaration_to_dict(declaration):
             if isinstance(declaration, FunctionDeclaration):
                 result = {
-                    'type': declaration.type,
+                    'type': declaration.type.value,
                     'name': declaration.name,
                     'parameters': [
                         {'name': param.name, 'type': param.type, **({'value': param.value} if param.value else {})}
@@ -33,7 +35,40 @@ class Program:
                 if declaration.declarations:
                     result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
                 return result
-        return {"declarations":[declaration_to_dict(decl) for decl in self.declarations]}
+            elif isinstance(declaration, ClassDeclaration):
+                result = {
+                    'type': declaration.type.value,
+                    'name': declaration.name
+                }
+                if declaration.declarations:
+                    result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                return result
+            elif isinstance(declaration, ObjectDeclaration):
+                result = {
+                    'type': declaration.type.value,
+                    'name': declaration.name
+                }
+                if declaration.declarations:
+                    result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                return result
+            elif isinstance(declaration, PropertyDeclaration):
+                result = {
+                    'type': declaration.type.value,
+                    'name': declaration.name
+                }
+                if declaration.declarations:
+                    result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                return result
+            elif isinstance(declaration, TypeDeclaration):
+                result = {
+                    'type': declaration.type.value,
+                    'name': declaration.name
+                }
+                if declaration.declarations:
+                    result['declarations'] = [declaration_to_dict(decl) for decl in declaration.declarations]
+                return result
+
+        return {"declarations": [declaration_to_dict(decl) for decl in self.declarations]}
 
     def to_json(self):
         return json.dumps(self.to_dict())
